@@ -1,10 +1,11 @@
-const width = window.innerWidth - 20;
+const width = window.innerWidth - 30;
 const height = window.innerHeight - 200;
 
 const svgRef = d3.select('#d3frame')
     .append('svg')
     .attr('width', width)
-    .attr('height', height);
+    .attr('height', height)
+    .style('background-color','cyan');
 
 
 class Node {
