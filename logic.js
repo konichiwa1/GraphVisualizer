@@ -129,13 +129,18 @@ drawBtn.addEventListener("click", () => {
     for (let i = 0; i < n; i++) {
         nodes.push(new Node(100, 100, 15, `${i}`));
     }
-    
+
     // edges
     let edgesInput = document.getElementById("edges").value;
     let edgesLineInput = edgesInput.split('\n');
     let edges = [];
     for (let i = 0; i < edgesLineInput.length; i++) {
-        let edge = edgesLineInput[i].split('-');
+        if (edgesLineInput[i].includes("->") === true) {
+            let edge = edgesLineInput[i].split("->");
+            edges.push(new DiEdge(nodes[parseInt(edge[0])], nodes[parseInt(edge[1])]));
+            continue;
+        }
+        let edge = edgesLineInput[i].split(' ');
         edges.push(new Edge(nodes[parseInt(edge[0])], nodes[parseInt(edge[1])]));
     }
 
