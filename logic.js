@@ -44,7 +44,7 @@ class DiEdge {
         const x1 = this.node1.cx, y1 = this.node1.cy, l1 = this.node1.label;
         const x2 = this.node2.cx, y2 = this.node2.cy, l2 = this.node2.label;
         let r = this.node1.radius;
-        if(x1>x2) r=-1*r;
+        if (x1 > x2) r = -1 * r;
         const angle = Math.atan((y1 - y2) / (x1 - x2));
 
         svg.append('defs')
@@ -81,7 +81,7 @@ class Edge {
         const x1 = this.node1.cx, y1 = this.node1.cy, l1 = this.node1.label;
         const x2 = this.node2.cx, y2 = this.node2.cy, l2 = this.node2.label;
         let r = this.node1.radius;
-        if(x1>x2) r=-1*r;
+        if (x1 >= x2) r = -1 * r;
         const angle = Math.atan((y1 - y2) / (x1 - x2));
 
         svg.append('line')
@@ -94,20 +94,44 @@ class Edge {
     }
 }
 
-var node1 = new Node(width / 6, height / 3, 15, '0');
-var node2 = new Node(width / 3, height / 4, 15, '1');
-var node3 = new Node(width / 4, height / 1.5, 15, '2');
-var node4 = new Node(width / 2.5, height / 2.5, 15, '3'); 
-var edge12 = new Edge(node1, node2);
-var edge23 = new Edge(node2, node3);
-var edge31 = new Edge(node3, node1);
-var edge14 = new Edge(node1, node4);
+class Graph {
+    constructor(nodes, edges) {
+        this.nodes = nodes;
+        this.edges = edges;
+    }
 
-node1.draw(svgRef);
-node2.draw(svgRef);
-node3.draw(svgRef);
-node4.draw(svgRef);
-edge12.draw(svgRef);
-edge23.draw(svgRef);
-edge31.draw(svgRef);
-edge14.draw(svgRef);
+    draw(svg) {
+        let totalNodes = this.nodes.length;
+        let baseAngle = 2 * Math.PI / totalNodes;
+        let baseX = width / 2, baseY = height / 2;
+        let baseR = 300;
+        let pAngle = 0;
+        this.nodes.map((node, idx) => {
+            node.cx = baseX - baseR * Math.cos(pAngle);
+            node.cy = baseY - baseR * Math.sin(pAngle);
+            node.draw(svg);
+            pAngle += baseAngle;
+        })
+
+        this.edges.map((edge, idx) => {
+            edge.draw(svg);
+        })
+    }
+
+}
+
+let nodes = [];
+const n = 5;
+for (let i = 0; i < n; i++) {
+    nodes.push(new Node(100, 100, 15, `${i}`));
+}
+
+let edges = [];
+for(let i=0; i<n; i++) {
+    for(let j=i+1; j<n; j++) {
+        edges.push(new Edge(nodes[i], nodes[j]));
+    }
+}
+
+let grp = new Graph(nodes, edges);
+grp.draw(svgRef);
