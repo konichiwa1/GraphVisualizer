@@ -1,5 +1,5 @@
 const width = window.innerWidth - 20;
-const height = window.innerHeight - 100;
+const height = window.innerHeight - 200;
 
 const svgRef = d3.select('#d3frame')
     .append('svg')
@@ -104,7 +104,7 @@ class Graph {
         let totalNodes = this.nodes.length;
         let baseAngle = 2 * Math.PI / totalNodes;
         let baseX = width / 2, baseY = height / 2;
-        let baseR = 300;
+        let baseR = 250;
         let pAngle = 0;
         this.nodes.map((node, idx) => {
             node.cx = baseX - baseR * Math.cos(pAngle);
@@ -120,18 +120,26 @@ class Graph {
 
 }
 
-let nodes = [];
-const n = 5;
-for (let i = 0; i < n; i++) {
-    nodes.push(new Node(100, 100, 15, `${i}`));
-}
 
-let edges = [];
-for(let i=0; i<n; i++) {
-    for(let j=i+1; j<n; j++) {
-        edges.push(new Edge(nodes[i], nodes[j]));
+let drawBtn = document.getElementById("draw-graph");
+drawBtn.addEventListener("click", () => {
+    // nodes
+    let n = document.getElementById("nodes").value;
+    let nodes = [];
+    for (let i = 0; i < n; i++) {
+        nodes.push(new Node(100, 100, 15, `${i}`));
     }
-}
+    
+    // edges
+    let edgesInput = document.getElementById("edges").value;
+    let edgesLineInput = edgesInput.split('\n');
+    let edges = [];
+    for (let i = 0; i < edgesLineInput.length; i++) {
+        let edge = edgesLineInput[i].split('-');
+        edges.push(new Edge(nodes[parseInt(edge[0])], nodes[parseInt(edge[1])]));
+    }
 
-let grp = new Graph(nodes, edges);
-grp.draw(svgRef);
+    let grp = new Graph(nodes, edges);
+    svgRef.selectAll("*").remove();
+    grp.draw(svgRef);
+})

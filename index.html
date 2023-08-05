@@ -5,13 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D3Js Practice</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.js" integrity="sha512-NmSTfudjn1FCaFMQ+f4xveBmwRJn5ep8Wu+YOeq+CeExhFtKvwhfKVXFX3tGxoGWxu8Fl83qm9nE8/Hkc1dWZg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.js"
+        integrity="sha512-NmSTfudjn1FCaFMQ+f4xveBmwRJn5ep8Wu+YOeq+CeExhFtKvwhfKVXFX3tGxoGWxu8Fl83qm9nE8/Hkc1dWZg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
     <h1>D3 Drawings</h1>
     <div id="d3frame"></div>
-
+    <div id="input-wrapper" style="padding: 20px;">
+        <div style="margin-bottom: 5px;"><input type="number" id="nodes" name="nodes" placeholder="Number of nodes"/></div>
+        <div><textarea id="edges" name="edges" placeholder="n1-n2"></textarea></div>
+        <div><button id="draw-graph">Draw</button></div>
+    </div>
     <script src="./logic.js"></script>
 </body>
 
