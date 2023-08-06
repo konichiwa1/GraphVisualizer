@@ -4,8 +4,7 @@ const height = window.innerHeight - 200;
 const svgRef = d3.select('#d3frame')
     .append('svg')
     .attr('width', width)
-    .attr('height', height)
-    .style('background-color','cyan');
+    .attr('height', height);
 
 
 class Node {
@@ -17,7 +16,7 @@ class Node {
     }
 
     draw(svg) {
-        svg.append('circle')
+        this.circle = svg.append('circle')
             .attr('cx', this.cx) // X coordinate of the center
             .attr('cy', this.cy) // Y coordinate of the center
             .attr('r', this.radius) // Radius of the circle
@@ -25,13 +24,20 @@ class Node {
             .attr('stroke', 'black') // Stroke color
             .attr('stroke-width', 1); // Stroke width
 
-        svg.append('text')
+        this.text = svg.append('text')
             .attr('x', this.cx) // X coordinate of the center
             .attr('y', this.cy) // Y coordinate of the center
             .attr('text-anchor', 'middle') // Center the label horizontally
             .attr('dy', '.40em') // Center the label vertically
             .text(this.label)
             .attr('fill', 'white'); // Label color
+    }
+
+    visit(delay) {
+        setTimeout(() => {
+            this.circle
+                .attr('fill', 'green');
+        }, delay);
     }
 }
 
@@ -85,13 +91,25 @@ class Edge {
         if (x1 >= x2) r = -1 * r;
         const angle = Math.atan((y1 - y2) / (x1 - x2));
 
-        svg.append('line')
-            .attr('x1', x1 + r * Math.cos(angle)) // X coordinate of the starting point
-            .attr('y1', y1 + r * Math.sin(angle)) // Y coordinate of the starting point
-            .attr('x2', x2 - r * Math.cos(angle)) // X coordinate of the ending point
-            .attr('y2', y2 - r * Math.sin(angle)) // Y coordinate of the ending point
-            .attr('stroke', 'black') // Line color
-            .attr('stroke-width', 2) // Line width
+        let startX = x1 + r * Math.cos(angle);
+        let startY = y1 + r * Math.sin(angle);
+        let endX = x2 - r * Math.cos(angle);
+        let endY = y2 - r * Math.sin(angle);
+
+        this.line = svg.append('line')
+            .attr('x1', startX)
+            .attr('y1', startY)
+            .attr('x2', endX)
+            .attr('y2', endY)
+            .attr('stroke', 'black')
+            .attr('stroke-width', 2)
+    }
+
+    traverse(delay) {
+        setTimeout(() => {
+            this.line.transition()
+                .attr('stroke', 'red');
+        }, delay);
     }
 }
 
@@ -126,8 +144,10 @@ let drawBtn = document.getElementById("draw-graph");
 drawBtn.addEventListener("click", () => {
     // nodes
     let n = document.getElementById("nodes").value;
+    let adj = {};
     let nodes = [];
     for (let i = 0; i < n; i++) {
+        adj[i] = [];
         nodes.push(new Node(100, 100, 15, `${i}`));
     }
 
@@ -135,6 +155,7 @@ drawBtn.addEventListener("click", () => {
     let edgesInput = document.getElementById("edges").value;
     let edgesLineInput = edgesInput.split('\n');
     let edges = [];
+    let nodeToEdgeMap = new Map();
     for (let i = 0; i < edgesLineInput.length; i++) {
         if (edgesLineInput[i].includes("->") === true) {
             let edge = edgesLineInput[i].split("->");
@@ -142,10 +163,42 @@ drawBtn.addEventListener("click", () => {
             continue;
         }
         let edge = edgesLineInput[i].split(' ');
-        edges.push(new Edge(nodes[parseInt(edge[0])], nodes[parseInt(edge[1])]));
+
+        adj[parseInt(edge[0])].push(parseInt(edge[1]));
+        adj[parseInt(edge[1])].push(parseInt(edge[0]));
+
+        let realEdge = new Edge(nodes[parseInt(edge[0])], nodes[parseInt(edge[1])]);
+        edges.push(realEdge);
+        nodeToEdgeMap.set('n'+edge[0]+'n'+edge[1], realEdge);
+        nodeToEdgeMap.set('n'+edge[1]+'n'+edge[0], realEdge);
     }
 
     let grp = new Graph(nodes, edges);
     svgRef.selectAll("*").remove();
     grp.draw(svgRef);
+
+    let tm = 0;
+    function dfs(u, vis={}, p=-1, tim={}) {
+        vis[u] = true;
+        
+        //render start
+        if(p!==-1) {
+            tim[u]=tm++;
+            nodeToEdgeMap.get('n'+p+'n'+u).traverse(tim[u]*800);
+            nodes[u].visit(tim[u]*800);
+        } else {
+            tim[u]=tm++;
+            nodes[u].visit(100);
+        }
+        //render end
+
+        const neighbours = adj[u];  
+        neighbours.forEach(v => {
+            if(!vis[v]) {
+                dfs(v, vis, u, tim);
+            }
+        })
+    }
+
+    dfs(0);
 })
