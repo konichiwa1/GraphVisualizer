@@ -82,6 +82,7 @@ class Edge {
     constructor(node1, node2) {
         this.node1 = node1;
         this.node2 = node2;
+        this.vis = false;
     }
 
     draw(svg) {
@@ -101,15 +102,16 @@ class Edge {
             .attr('y1', startY)
             .attr('x2', endX)
             .attr('y2', endY)
-            .attr('stroke', 'black')
+            .attr('stroke', 'grey')
             .attr('stroke-width', 2)
     }
 
-    traverse(delay) {
+    traverse(delay, color) {
         setTimeout(() => {
             this.line.transition()
-                .attr('stroke', 'red');
+                .attr('stroke', color);
         }, delay);
+        this.vis = true;
     }
 }
 
@@ -169,8 +171,8 @@ drawBtn.addEventListener("click", () => {
 
         let realEdge = new Edge(nodes[parseInt(edge[0])], nodes[parseInt(edge[1])]);
         edges.push(realEdge);
-        nodeToEdgeMap.set('n'+edge[0]+'n'+edge[1], realEdge);
-        nodeToEdgeMap.set('n'+edge[1]+'n'+edge[0], realEdge);
+        nodeToEdgeMap.set('n' + edge[0] + 'n' + edge[1], realEdge);
+        nodeToEdgeMap.set('n' + edge[1] + 'n' + edge[0], realEdge);
     }
 
     let grp = new Graph(nodes, edges);
@@ -178,24 +180,26 @@ drawBtn.addEventListener("click", () => {
     grp.draw(svgRef);
 
     let tm = 0;
-    function dfs(u, vis={}, p=-1, tim={}) {
+    function dfs(u, vis = {}, p = -1, tim = {}) {
         vis[u] = true;
-        
+
         //render start
-        if(p!==-1) {
-            tim[u]=tm++;
-            nodeToEdgeMap.get('n'+p+'n'+u).traverse(tim[u]*800);
-            nodes[u].visit(tim[u]*800);
+        if (p !== -1) {
+            tim[u] = tm++;
+            nodeToEdgeMap.get('n' + p + 'n' + u).traverse(tim[u] * 800, '#00f7ef');
+            nodes[u].visit(tim[u] * 800);
         } else {
-            tim[u]=tm++;
+            tim[u] = tm++;
             nodes[u].visit(100);
         }
         //render end
 
-        const neighbours = adj[u];  
+        const neighbours = adj[u];
         neighbours.forEach(v => {
-            if(!vis[v]) {
+            if (!vis[v]) {
                 dfs(v, vis, u, tim);
+            } else if (!nodeToEdgeMap.get('n' + u + 'n' + v).vis) {
+                nodeToEdgeMap.get('n' + u + 'n' + v).traverse(tim[u] * 800, '#c8f7f6');
             }
         })
     }
